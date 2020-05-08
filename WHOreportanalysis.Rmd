@@ -1,0 +1,205 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+file_vector <- list.files(path = "Covid project",pattern ="*.pdf",full.names = TRUE)
+head(file_vector)
+```
+```{r}
+grepl(".pdf",file_vector)
+pdf_list <- file_vector[grepl(".pdf",file_vector)]
+```
+```{r}
+newpdf_list<-paste0(path = "/Users/rajaathota72/Desktop/covidreport/covidreportn",1:length(pdf_list),".pdf")
+length(newpdf_list)
+file.copy(from = file_vector, to = newpdf_list)
+```
+```{r}
+#install.packages("pdftools")
+library(pdftools)
+p1<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn', 1:66,'.pdf')
+head(p1)
+```
+```{r}
+d<-function(act1){
+  n1<-pdf_info(act1)
+  n2<-n1$created
+}
+report_dates<-lapply(p1,d)
+head(report_dates)
+```
+```{r}
+e<-function(act2){
+  n1<-pdf_info(act2)
+  n2<-n1$pages
+}
+pages<-lapply(p1,e)
+head(pages)
+```
+```{r}
+vector1<-unlist(pages)
+n1<-which(vector1==5)
+n1
+n2<-which(vector1==6)
+n2
+n3<-which(vector1==7)
+n3
+n4<-which(vector1==8)
+n4
+n5<-which(vector1==9)
+n5
+n6<-which(vector1==10)
+n6
+n7<-which(vector1==11)
+n7
+n8<-which(vector1==12)
+n8
+```
+```{r}
+#install.packages("tesseract")
+library(tesseract)
+p2<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n1,'.pdf')
+p3<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n2,'.pdf')
+p4<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n3,'.pdf')
+p5<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n4,'.pdf')
+p6<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n5,'.pdf')
+p7<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n6,'.pdf')
+p8<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n7,'.pdf')
+p9<-paste0('/Users/rajaathota72/Desktop/covidreport/covidreportn',n8,'.pdf')
+head(p2)
+head(p3)
+```
+```{r}
+#x1<-lapply(p2,con_ext)
+length(unlist(x1))
+#unlist(x1)
+#x2<-lapply(p3,con_ext)
+length(unlist(x2))
+#View(unlist(x2))
+#x3<-lapply(p4,con_ext)
+length(unlist(x3))
+#View(unlist(x3))
+#x4<-lapply(p5,con_ext)
+length(unlist(x4))
+#View(unlist(x4))
+#x5<-lapply(p6,con_ext)
+length(unlist(x5))
+#View(unlist(x5))
+#x6<-lapply(p7,con_ext)
+length(unlist(x6))
+#View(unlist(x6))
+#x7<-lapply(p8,con_ext)
+length(unlist(x7))
+#View(unlist(x7))
+#x8<-lapply(p9,con_ext)
+length(unlist(x8))
+#unlist(x8)
+
+```
+```{r}
+df1<-data.frame(unlist(x2))
+View(df1)
+l1<-c(seq(from=11,to=41,by=6))
+df1_so<-df1[l1,1]
+View(df1_so)
+df2<-data.frame(unlist(x3))
+#View(df2)
+l2<-c(seq(from=48,to=181,by=7))
+df2_so<-df2[l2,1]
+View(df2_so)
+df2<-data.frame(unlist(x3))
+#View(df2)
+l2<-c(seq(from=48,to=181,by=7))
+df2_so<-df2[l2,1]
+View(df2_so)
+c1<-c(seq(from=84,to=133,by=7))
+df2_cm<-df2[c1,1]
+View(df2_cm)
+df3<-data.frame(unlist(x4))
+#View(df3)
+l3<-c(13,23,31,39,46)
+df3_so<-df3[l3,1]
+View(df3_so)
+df4<-data.frame(unlist(x5))
+#View(df4)
+l4<-c(43,52,88,97)
+df4_so<-df4[l4,1]
+View(df4_so)
+df5<-data.frame(unlist(x6))
+#View(df5)
+l5<-c(8,28)
+df5_so<-df5[l5,1]
+View(df5_so)
+View(df2_cm)
+```
+
+```{r}
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+```
+```{r}
+corpus<-Corpus(VectorSource(df2_cm))
+corpus[[1]][1]
+```
+```{r}
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "\n")
+corpus <- tm_map(corpus, toSpace, "¢")
+corpus <- tm_map(corpus, toSpace, "\ne")
+#Conversion to Lowercase
+corpus = tm_map(corpus, PlainTextDocument)
+corpus = tm_map(corpus, tolower)
+#Removing Punctuation
+corpus = tm_map(corpus, removePunctuation)
+#Remove stopwords
+corpus = tm_map(corpus, removeWords, stopwords("english"))
+DTM <- TermDocumentMatrix(corpus)
+mat <- as.matrix(DTM)
+f <- sort(rowSums(mat),decreasing=TRUE)
+dat <- data.frame(word = names(f),freq=f)
+head(dat)
+```
+```{r}
+#install.packages("wordcloud2")
+library(wordcloud2)
+wordcloud2(dat, minRotation = -pi/6, maxRotation = -pi/6, minSize = 10,
+           rotateRatio = 1)
+```
+```{r}
+corpus2<-Corpus(VectorSource(df2_so))
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+corpus2<- tm_map(corpus2, toSpace, "\n")
+corpus2<- tm_map(corpus2, toSpace, "¢")
+corpus2<- tm_map(corpus2, toSpace, "\ne")
+#Conversion to Lowercase
+corpus2= tm_map(corpus2, PlainTextDocument)
+corpus2= tm_map(corpus2, tolower)
+#Removing Punctuation
+corpus2= tm_map(corpus2, removePunctuation)
+#Remove stopwords
+corpus2= tm_map(corpus2, removeWords, stopwords("english"))
+DTM2 <- TermDocumentMatrix(corpus2)
+mat2 <- as.matrix(DTM2)
+f2 <- sort(rowSums(mat2),decreasing=TRUE)
+dat2 <- data.frame(word = names(f2),freq=f2)
+head(dat2
+```
+```{r}
+wordcloud2(dat2, minRotation = -pi/6, maxRotation = -pi/6, minSize = 10,
+           rotateRatio = 1)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
